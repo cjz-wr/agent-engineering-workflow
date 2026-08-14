@@ -1,0 +1,17 @@
+<div id="post-actions" class="flex items-center gap-3">
+  {% include "components/status_badge.html" %}
+  {% if post.status in ("draft", "rejected") %}
+    <button
+      hx-post="/posts/{{ post.id }}/submit"
+      hx-target="#post-actions"
+      hx-swap="outerHTML"
+      class="inline-flex items-center gap-1.5 rounded-xl border border-amber-600 px-3.5 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50">
+      <i data-lucide="send" class="h-4 w-4"></i>
+      提交审核
+    </button>
+  {% elif post.status == "submitted" %}
+    <span class="inline-flex items-center gap-1.5 text-sm text-slate-400">
+      <i data-lucide="clock" class="h-4 w-4"></i>等待管理员审核
+    </span>
+  {% endif %}
+</div>

@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}{% if post %}编辑文章{% else %}写文章{% endif %} — {{ app_name }}{% endblock %}
+{% block content %}
+{% if post %}
+  <form id="delete-post-form" method="post" action="/posts/{{ post.id }}/delete"
+        onsubmit="return confirm('确定删除这篇文章吗？此操作不可撤销。');" class="hidden"></form>
+{% endif %}
+
+<div class="mx-auto max-w-5xl">
+  <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-2xl font-bold text-slate-900">
+      {% if post %}编辑文章{% else %}写文章{% endif %}
+    </h1>
+    {% if post %}
+      <div class="flex items-center gap-3">
+        {% include "components/post_actions.html" %}
+      </div>
+    {% endif %}
+  </div>
+
+  {% include "components/flash.html" %}
+
+  <form
+    method="post"
+    action="{% if post %}/posts/{{ post.id }}{% else %}/posts{% endif %}"
+    x-data='{
+      mode: "edit",
+      markdown: {{ (post.content if post else content) | tojson }}
+    }'
+    class="space-y-5">
+    <input type="hidden" name="action" id="action" value="save">
+
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <label for="title" class="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-700">
+        <i data-lucide="heading" class="h-4 w-4 text-indigo-500"></i>标题
+      </label>
+      <input
+        id="title"
+        name="title"
+        value="{{ post.title if post else title }}"
+        required
+        maxlength="200"
+        placeholder="输入文章标题…"
+        class="w-full rounded-xl border border-slate-300 px-4 py-3 text-lg font-medium focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+      <p class="mt-2 flex items-center gap-1 text-xs text-slate-400">
+        <i data-lucide="link" class="h-3.5 w-3.5"></i>
+        Slug：{{ post.slug if post else '保存后根据标题自动生成' }}
+      </p>
+    </div>
+
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-editor>
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 bg-slate-50/70 px-4 py-2.5">
+        <label class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+          <i data-lucide="file-text" class="h-4 w-4 text-indigo-500"></i>正文（Markdown）
+        </label>
+        <div class="flex overflow-hidden rounded-lg border border-slate-200 bg-white text-xs font-medium shadow-sm">
+          <button type="button" @click="mode = 'edit'"
+                  :class="mode === 'edit' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'"
+                  class="px-3 py-1.5 transition">编辑</button>
+          <button type="button" @click="mode = 'preview'"
+                  :class="mode === 'preview' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'"
+                  class="px-3 py-1.5 transition">预览</button>
+          <button type="button" @click="mode = 'split'"
+                  :class="mode === 'split' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-50'"
+                  class="px-3 py-1.5 transition">分屏</button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-1 border-b border-slate-100 bg-slate-50/60 px-3 py-1.5" data-editor-toolbar>
+        <button type="button" data-md-wrap="**" data-md-sample="加粗文字" title="加粗（Ctrl+B）"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="bold" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-wrap="*" data-md-sample="斜体文字" title="斜体（Ctrl+I）"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="italic" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-wrap="~~" data-md-sample="删除线" title="删除线"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="strikethrough" class="h-4 w-4"></i>
+        </button>
+        <span class="mx-1 h-5 w-px bg-slate-200"></span>
+        <button type="button" data-md-prefix="## " title="标题（H2）"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="heading-2" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-prefix="### " title="小标题（H3）"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="heading-3" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-prefix="> " title="引用"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="quote" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-prefix="- " title="无序列表"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="list" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-prefix="1. " title="有序列表"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="list-ordered" class="h-4 w-4"></i>
+        </button>
+        <span class="mx-1 h-5 w-px bg-slate-200"></span>
+        <button type="button" data-md-wrap="`" data-md-sample="代码" title="行内代码"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="code" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-before="```&#10;" data-md-after="&#10;```" data-md-sample="代码块" title="代码块"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="code-xml" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-link="true" title="插入链接（Ctrl+K）"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="link-2" class="h-4 w-4"></i>
+        </button>
+        <button type="button" data-md-insert="&#10;&#10;---&#10;&#10;" title="分割线"
+                :disabled="mode === 'preview'"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-indigo-600 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40">
+          <i data-lucide="minus" class="h-4 w-4"></i>
+        </button>
+      </div>
+
+      <div :class="mode === 'split' ? 'grid md:grid-cols-2' : ''">
+        <textarea
+          id="content"
+          name="content"
+          x-ref="content"
+          x-model="markdown"
+          x-show="mode !== 'preview'"
+          rows="18"
+          placeholder="在此输入正文内容，支持 Markdown 语法…"
+          class="h-[28rem] w-full resize-y border-0 px-4 py-3 font-mono text-sm leading-relaxed focus:outline-none focus:ring-0">{{ post.content if post else content }}</textarea>
+        <div
+          id="markdown-preview"
+          x-show="mode !== 'edit'"
+          x-html="marked.parse(markdown || '')"
+          :class="mode === 'split' ? 'border-l border-slate-100' : ''"
+          class="markdown-body h-[28rem] overflow-y-auto bg-slate-50 px-4 py-3"></div>
+      </div>
+
+      <div x-data="{ open: false }">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 bg-slate-50/70 px-4 py-2 text-xs text-slate-400">
+          <button type="button" @click="open = !open" class="inline-flex items-center gap-1 hover:text-indigo-600">
+            <i data-lucide="help-circle" class="h-3.5 w-3.5"></i>
+            Markdown 语法
+            <i data-lucide="chevron-down" class="h-3.5 w-3.5 transition-transform" :class="open ? 'rotate-180' : ''"></i>
+          </button>
+          <div class="flex items-center gap-4">
+            <span><span data-char-count>0</span> 字</span>
+            <span><span data-word-count>0</span> 词</span>
+          </div>
+        </div>
+        <div x-show="open" x-transition.opacity
+             class="grid grid-cols-2 gap-x-8 gap-y-1.5 border-t border-slate-100 bg-white px-5 py-3 text-xs text-slate-500 sm:grid-cols-3">
+          <div><code class="text-indigo-600"># 一级标题</code></div>
+          <div><code class="text-indigo-600">## 二级标题</code></div>
+          <div><code class="text-indigo-600">**加粗**</code></div>
+          <div><code class="text-indigo-600">*斜体*</code></div>
+          <div><code class="text-indigo-600">&gt; 引用</code></div>
+          <div><code class="text-indigo-600">`行内代码`</code></div>
+          <div><code class="text-indigo-600">```代码块```</code></div>
+          <div><code class="text-indigo-600">[链接文字](https://…)</code></div>
+          <div><code class="text-indigo-600">- 无序列表</code></div>
+          <div><code class="text-indigo-600">1. 有序列表</code></div>
+          <div><code class="text-indigo-600">--- 分割线</code></div>
+          <div><code class="text-indigo-600">| 表格 | 语法 |</code></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sticky bottom-4 z-20 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white/95 p-4 shadow-lg backdrop-blur">
+      <div class="mr-auto flex flex-wrap items-center gap-3">
+        {% if post %}
+          {% include "components/status_badge.html" %}
+        {% endif %}
+        <span class="hidden text-xs text-slate-400 sm:inline">正文支持 Markdown，可随时保存草稿</span>
+      </div>
+      <button type="submit" class="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-5 py-2.5 font-medium text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700">
+        <i data-lucide="save" class="h-4 w-4"></i>
+        保存草稿
+      </button>
+      <button
+        type="button"
+        @click="document.getElementById('action').value = 'submit'; $el.closest('form').submit()"
+        class="inline-flex items-center gap-1.5 rounded-xl border border-amber-600 px-5 py-2.5 font-medium text-amber-700 hover:bg-amber-50">
+        <i data-lucide="send" class="h-4 w-4"></i>
+        提交审核
+      </button>
+      {% if post %}
+        <button type="submit" form="delete-post-form"
+                class="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50">
+          <i data-lucide="trash-2" class="h-4 w-4"></i>
+          删除
+        </button>
+      {% endif %}
+    </div>
+  </form>
+</div>
+{% endblock %}

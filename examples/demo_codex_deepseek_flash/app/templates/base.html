@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ app_name }} - 轻量级局域网多人内容平台">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <script src="/static/vendor/tailwind.js"></script>
+  <script src="/static/vendor/htmx.min.js"></script>
+  <script defer src="/static/vendor/alpine.min.js"></script>
+  <script src="/static/vendor/lucide.min.js"></script>
+  <script src="/static/vendor/marked.min.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+  {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased">
+  <div class="pointer-events-none fixed inset-x-0 top-0 z-0 h-80 bg-gradient-to-b from-indigo-100/70 via-violet-50/40 to-transparent"></div>
+  {% include "components/navbar.html" %}
+  <main class="relative z-10 flex-1 w-full max-w-6xl mx-auto px-4 py-8">
+    {% include "components/flash.html" %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="relative z-10 mt-10 border-t border-slate-200 bg-white/80 backdrop-blur">
+    <div class="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-sm text-slate-500 sm:flex-row">
+      <div class="flex items-center gap-2">
+        <i data-lucide="feather" class="h-4 w-4 text-indigo-500"></i>
+        <span class="font-medium text-slate-600">{{ app_name }}</span>
+        <span>·</span>
+        <span>FastAPI · SQLite · HTMX · Tailwind CSS</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/" class="hover:text-indigo-600">首页</a>
+        {% if current_user %}
+          <a href="/posts/new" class="hover:text-indigo-600">写文章</a>
+        {% endif %}
+      </div>
+    </div>
+  </footer>
+  <script src="/static/js/main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

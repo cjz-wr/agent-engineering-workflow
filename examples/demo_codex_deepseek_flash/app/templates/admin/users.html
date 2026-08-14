@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}用户管理 — {{ app_name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">用户管理</h1>
+    <p class="mt-0.5 text-sm text-slate-400">管理用户角色与账号状态</p>
+  </div>
+  <a href="/admin" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i>返回仪表盘
+  </a>
+</div>
+
+{% if users %}
+  <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-xs uppercase text-slate-500">
+      <tr>
+        <th class="px-4 py-3">用户名</th>
+        <th class="px-4 py-3">显示名称</th>
+        <th class="px-4 py-3">角色</th>
+        <th class="px-4 py-3">状态</th>
+        <th class="px-4 py-3">注册时间</th>
+        <th class="px-4 py-3 text-right">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for user in users %}
+        <tr class="border-t border-slate-100">
+          <td class="px-4 py-3 font-medium text-slate-900">{{ user.username }}</td>
+          <td class="px-4 py-3 text-slate-600">{{ user.display_name }}</td>
+          <td class="px-4 py-3">
+            {% if user.is_admin %}
+              <span class="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-700">admin</span>
+            {% else %}
+              <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">user</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            {% if user.is_active %}
+              <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">正常</span>
+            {% else %}
+              <span class="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700">已禁用</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-slate-500">{{ user.created_at | format_dt }}</td>
+          <td class="px-4 py-3">
+            <div class="flex items-center justify-end gap-2">
+              <form method="post" action="/admin/users/{{ user.id }}/role" class="flex items-center gap-1">
+                <select name="role" class="rounded-lg border border-slate-300 px-2 py-1 text-xs">
+                  <option value="user" {% if not user.is_admin %}selected{% endif %}>user</option>
+                  <option value="admin" {% if user.is_admin %}selected{% endif %}>admin</option>
+                </select>
+                <button class="rounded-lg bg-slate-700 px-2 py-1 text-xs font-medium text-white hover:bg-slate-800">设置</button>
+              </form>
+              <form method="post" action="/admin/users/{{ user.id }}/toggle-active">
+                <button
+                  {% if user.id == current_user.id %}disabled title="不能禁用自己"{% endif %}
+                  class="text-xs font-medium {{ 'text-rose-500 hover:underline' if user.is_active else 'text-emerald-600 hover:underline' }} disabled:cursor-not-allowed disabled:opacity-40">
+                  {{ "禁用" if user.is_active else "启用" }}
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="flex flex-col items-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+    <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-400">
+      <i data-lucide="users" class="h-7 w-7"></i>
+    </span>
+    <p class="mt-4 font-medium text-slate-600">暂无用户</p>
+  </div>
+{% endif %}
+{% endblock %}

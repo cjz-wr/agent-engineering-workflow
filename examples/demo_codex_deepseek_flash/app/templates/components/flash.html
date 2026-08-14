@@ -1,0 +1,20 @@
+{% if flashes %}
+  <div class="mb-6 space-y-2">
+    {% for message in flashes %}
+      <div x-data="{ show: true }" x-show="show" x-transition.opacity
+           class="flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm text-emerald-700">
+        <i data-lucide="check-circle-2" class="h-4 w-4 shrink-0"></i>
+        <span class="flex-1">{{ message }}</span>
+        <button type="button" @click="show = false" class="text-emerald-400 hover:text-emerald-600" title="关闭">
+          <i data-lucide="x" class="h-4 w-4"></i>
+        </button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% if error %}
+  <div class="mb-6 flex items-center gap-2.5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-700">
+    <i data-lucide="alert-circle" class="h-4 w-4 shrink-0"></i>
+    <span>{{ error }}</span>
+  </div>
+{% endif %}

@@ -1,0 +1,4 @@
+<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium {{ status_color(post.status) }}">
+  <span class="h-1.5 w-1.5 rounded-full {{ {'draft': 'bg-slate-500', 'submitted': 'bg-amber-500', 'published': 'bg-emerald-600', 'rejected': 'bg-rose-600'}[post.status] }}"></span>
+  {{ status_label(post.status) }}
+</span>

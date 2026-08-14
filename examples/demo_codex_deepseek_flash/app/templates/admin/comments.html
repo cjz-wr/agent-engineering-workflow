@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}评论管理 — {{ app_name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">评论管理</h1>
+    <p class="mt-0.5 text-sm text-slate-400">审核并清理违规评论</p>
+  </div>
+  <a href="/admin" class="inline-flex items-center gap-1 text-sm text-indigo-600 hover:underline">
+    <i data-lucide="arrow-left" class="h-4 w-4"></i>返回仪表盘
+  </a>
+</div>
+
+{% if comments %}
+  <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-left text-xs uppercase text-slate-500">
+      <tr>
+        <th class="px-4 py-3">评论</th>
+        <th class="px-4 py-3">文章</th>
+        <th class="px-4 py-3">作者</th>
+        <th class="px-4 py-3">时间</th>
+        <th class="px-4 py-3 text-right">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for comment in comments %}
+        <tr id="admin-comment-{{ comment.id }}" class="border-t border-slate-100">
+          <td class="max-w-md px-4 py-3">
+            <div class="line-clamp-2 text-slate-700">{{ comment.content }}</div>
+            {% if comment.is_deleted %}
+              <span class="mt-1 inline-block rounded-full bg-rose-100 px-2 py-0.5 text-xs text-rose-600">已删除</span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3">
+            <a href="/posts/{{ comment.post.slug }}" class="text-indigo-600 hover:underline">{{ comment.post.title }}</a>
+          </td>
+          <td class="px-4 py-3 text-slate-600">{{ comment.author.display_name or comment.author.username }}</td>
+          <td class="px-4 py-3 text-slate-500">{{ comment.created_at | format_dt }}</td>
+          <td class="px-4 py-3 text-right">
+            <button
+              hx-post="/admin/comments/{{ comment.id }}/delete"
+              hx-target="#admin-comment-{{ comment.id }}"
+              hx-swap="outerHTML"
+              hx-confirm="确定删除这条评论吗？"
+              class="text-xs font-medium text-rose-500 hover:underline">
+              删除
+            </button>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="flex flex-col items-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+    <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-400">
+      <i data-lucide="message-circle" class="h-7 w-7"></i>
+    </span>
+    <p class="mt-4 font-medium text-slate-600">暂无评论</p>
+  </div>
+{% endif %}
+{% endblock %}

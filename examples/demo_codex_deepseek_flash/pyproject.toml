@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini-blog"
+version = "0.1.0"
+description = "Lightweight LAN multi-user content platform built with FastAPI + Jinja2 + SQLite + HTMX + Alpine.js + Tailwind CSS"
+readme = "readme.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.104",
+    "uvicorn>=0.24",
+    "jinja2>=3.1",
+    "sqlalchemy>=2.0",
+    "pydantic>=2.5",
+    "python-dotenv>=1.0",
+    "python-multipart>=0.0.7",
+    "markdown>=3.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "httpx>=0.27",
+]
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["templates/**/*.html", "static/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

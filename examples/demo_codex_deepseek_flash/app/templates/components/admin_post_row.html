@@ -1,0 +1,52 @@
+<tr id="post-row-{{ post.id }}" class="border-t border-slate-100">
+  <td class="px-4 py-3">
+    <div class="font-medium text-slate-900">{{ post.title }}</div>
+    <div class="text-xs text-slate-400">/posts/{{ post.slug }}</div>
+  </td>
+  <td class="px-4 py-3 text-slate-600">{{ post.author.display_name or post.author.username }}</td>
+  <td class="px-4 py-3">{% include "components/status_badge.html" %}</td>
+  <td class="px-4 py-3 text-slate-500">{{ post.updated_at | format_dt }}</td>
+  <td class="px-4 py-3">
+    <div class="flex items-center justify-end gap-2">
+      {% if post.status in ("draft", "rejected", "submitted") %}
+        <button
+          hx-post="/admin/posts/{{ post.id }}/publish"
+          hx-target="#post-row-{{ post.id }}"
+          hx-swap="outerHTML"
+          class="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700">
+          <i data-lucide="check" class="h-3.5 w-3.5"></i>
+          发布
+        </button>
+      {% endif %}
+      {% if post.status == "submitted" %}
+        <button
+          hx-post="/admin/posts/{{ post.id }}/reject"
+          hx-target="#post-row-{{ post.id }}"
+          hx-swap="outerHTML"
+          class="inline-flex items-center gap-1 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700">
+          <i data-lucide="x" class="h-3.5 w-3.5"></i>
+          驳回
+        </button>
+      {% endif %}
+      {% if post.status == "published" %}
+        <button
+          hx-post="/admin/posts/{{ post.id }}/unpublish"
+          hx-target="#post-row-{{ post.id }}"
+          hx-swap="outerHTML"
+          class="inline-flex items-center gap-1 rounded-lg border border-amber-600 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-50">
+          <i data-lucide="eye-off" class="h-3.5 w-3.5"></i>
+          取消发布
+        </button>
+      {% endif %}
+      <button
+        hx-post="/admin/posts/{{ post.id }}/delete"
+        hx-target="#post-row-{{ post.id }}"
+        hx-swap="outerHTML"
+        hx-confirm="确定删除这篇文章吗？"
+        class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:underline">
+        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+        删除
+      </button>
+    </div>
+  </td>
+</tr>

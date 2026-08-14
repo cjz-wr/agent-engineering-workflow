@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}登录 — {{ app_name }}{% endblock %}
+{% block content %}
+<div class="mx-auto w-full max-w-md py-6">
+  <div class="mb-7 text-center">
+    <span class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-200">
+      <i data-lucide="newspaper" class="h-7 w-7"></i>
+    </span>
+    <h1 class="mt-4 text-2xl font-bold text-slate-900">欢迎回来</h1>
+    <p class="mt-1 text-sm text-slate-500">登录 {{ app_name }}，继续阅读与写作</p>
+  </div>
+  <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-lg shadow-slate-200/60">
+    {% include "components/flash.html" %}
+    <form method="post" action="/login" class="space-y-5">
+      <div>
+        <label for="username" class="mb-1.5 block text-sm font-medium text-slate-700">用户名</label>
+        <div class="relative">
+          <i data-lucide="user" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+          <input id="username" name="username" value="{{ username or '' }}" required placeholder="请输入用户名"
+                 class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+        </div>
+      </div>
+      <div>
+        <label for="password" class="mb-1.5 block text-sm font-medium text-slate-700">密码</label>
+        <div class="relative">
+          <i data-lucide="lock" class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"></i>
+          <input id="password" name="password" type="password" required placeholder="请输入密码"
+                 class="w-full rounded-xl border border-slate-300 py-2.5 pl-10 pr-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+        </div>
+      </div>
+      <button type="submit"
+              class="w-full rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 py-2.5 font-semibold text-white shadow-md shadow-indigo-200 hover:from-indigo-700 hover:to-violet-700">
+        登录
+      </button>
+    </form>
+    <p class="mt-6 text-center text-sm text-slate-500">
+      还没有账号？<a href="/register" class="font-medium text-indigo-600 hover:underline">立即注册</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

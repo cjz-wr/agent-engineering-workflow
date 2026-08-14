@@ -1,0 +1,2 @@
+"""Mini Blog application package."""
+

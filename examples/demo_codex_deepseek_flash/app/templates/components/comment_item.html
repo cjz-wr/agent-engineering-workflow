@@ -1,0 +1,25 @@
+<div id="comment-{{ comment.id }}" class="comment-item flex gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+  <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-100 to-violet-100 text-sm font-bold text-indigo-600">
+    {{ (comment.author.display_name or comment.author.username)[0] }}
+  </div>
+  <div class="min-w-0 flex-1">
+    <div class="flex items-center justify-between gap-2">
+      <div class="text-sm">
+        <span class="font-medium text-slate-800">{{ comment.author.display_name or comment.author.username }}</span>
+        <span class="ml-2 text-xs text-slate-400">{{ comment.created_at | format_dt }}</span>
+      </div>
+      {% if current_user and (comment.author_id == current_user.id or current_user.is_admin) %}
+        <button
+          hx-post="/comments/{{ comment.id }}/delete"
+          hx-target="#comment-{{ comment.id }}"
+          hx-swap="outerHTML"
+          hx-confirm="确定删除这条评论吗？"
+          class="inline-flex items-center gap-1 text-xs font-medium text-rose-500 hover:underline">
+          <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+          删除
+        </button>
+      {% endif %}
+    </div>
+    <p class="mt-1 whitespace-pre-wrap text-sm text-slate-700">{{ comment.content }}</p>
+  </div>
+</div>
