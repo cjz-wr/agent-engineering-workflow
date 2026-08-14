@@ -1,175 +1,297 @@
-# Agent Engineering Skills
+# Agent Engineering Workflow
 
-这是一个用于 AI Coding Agent 的工程工作流 Skills 仓库。
+[简体中文](./README.zh-CN.md)
 
-Designed for Agent Skills-compatible coding agents and tools that support the standard `SKILL.md` structure.
+Production-oriented workflow skills for AI coding agents.
 
-版本：**v2.2.0**
+**v2.2.0**
 
-## Included Skills
+Organize the following pipeline into installable, reusable Coding Agent Workflows:
 
-### project-bootstrap-workflow
+```
+Requirement → Plan → Code Navigation → Impact Analysis → Implementation → Validation → Knowledge Capture → Git Commit → Delivery
+```
 
-用于新项目。基于 `readme.md` 从零搭建项目并完成增量开发：脚手架、Git 初始化、`AGENTS.md` / `plan.md` / `tree.md` / `decision.md`、知识索引、验证与交付。
+This is not a plain collection of prompts, but a set of installable Coding Agent Workflow Skills.
 
-适用场景：new project、greenfield、bootstrap、scaffold、from readme。
+## Why
 
-### feature-change-workflow
+Common problems with traditional Coding Agents:
 
-用于已有项目。对已有代码库进行功能、缺陷修复、重构或行为变更，保护用户已有修改与项目边界。
+- Reading too much context
+- Losing control of change scope
+- Not knowing the impact range of code changes
+- Overwriting the user's existing modifications
+- Lacking knowledge capture in long-running projects
+- Depending on chat memory across sessions
+- Unstable validation and delivery processes
 
-适用场景：existing project、feature、bugfix、refactor、change。
+This project addresses them through:
+
+| Mechanism | What it solves |
+| --- | --- |
+| State Machine | Clear phases and resumable states, avoiding process drift |
+| Risk Control | L0–L4 risk levels to keep change scope under control |
+| Progressive Discovery | Locate code layer by layer, reducing context reads |
+| Code Graph | Understand structure and impact (Impact / Blast Radius) |
+| Vector Knowledge | Long-term knowledge capture, reusable across sessions |
+| Git Safety | Protect the user's existing changes with small commits |
+| Validation | Stable validation pipeline |
+| Acceptance Criteria | Item-by-item verification before delivery |
+
+## Two Ways of Use
+
+This project offers two levels of usage:
+
+### Lightweight Prompt Edition
+
+Best for small projects, personal projects, and scenarios where you want to copy prompts directly.
+
+Located at:
+
+`simplePrompt/`
+
+Main files:
+
+- `OptimizeGeneratePromotSkill.md`
+  - For new project initialization and incremental development
+- `OptimizeEditFunctionSkill.md`
+  - For feature modification, bug fixes, and local refactoring in existing projects
+
+These prompts are verified through real usage — shorter workflow and lower context overhead, suitable for small projects that do not need a full Agent Skills infrastructure.
+
+v2.2 adds state machine, risk control, code graph, and vector knowledge on top of the lightweight prompt edition, so it is more complete but also requires more context and a more complex execution flow.
+
+### Agent Skills Edition
+
+Best for medium-to-large projects, long-term maintained projects, and scenarios that need persistent knowledge, code graphs, state management, and standard Skill installation.
+
+Includes:
+
+- `project-bootstrap-workflow`
+- `feature-change-workflow`
+
+Features:
+
+- Standard `SKILL.md` structure
+- State machine
+- Risk levels
+- Code Graph
+- Vector Backend
+- Progressive Discovery
+- Cross-session plan state
+- Complete validation and delivery workflow
+
+## Skills
+
+| Skill | Use when | Input | Output |
+| --- | --- | --- | --- |
+| `project-bootstrap-workflow` | New project | `readme.md` | Complete project skeleton and development workflow |
+| `feature-change-workflow` | Existing project | User request + project context | Safe incremental modification |
+
+```
+New project → project-bootstrap-workflow
+Existing project change → feature-change-workflow
+```
 
 ## Architecture
 
-```
-Bootstrap Skill（project-bootstrap-workflow/SKILL.md）
-      ↓
-Base Engineering Protocol（references/base-protocol.md）
-      ↑
-      │ inherited by reference
-Feature Change Skill（feature-change-workflow/SKILL.md）
-      ↓
-Feature-specific Layer（references/feature-change.md）
-```
-
-- Base Protocol 只定义一次，位于 Bootstrap Skill 的 `references/base-protocol.md`。
-- Feature Change Skill 通过引用继承 Base Protocol，只定义已有项目修改的差异，不复制整份协议。
-
-## Repository Layout
+The two Skills share one Base Engineering Protocol. Feature Change only adds the specific flow for modifying existing projects, avoiding two duplicated rule sets.
 
 ```
-agent-engineering-skills/
-├── README.md
-├── LICENSE
-├── skills/
-│   ├── project-bootstrap-workflow/
-│   │   ├── SKILL.md
-│   │   └── references/
-│   │       ├── base-protocol.md
-│   │       ├── plan-template.md
-│   │       ├── decision-log-template.md
-│   │       └── tree-template.md
-│   └── feature-change-workflow/
-│       ├── SKILL.md
-│       └── references/
-│           └── feature-change.md
-├── docs/
-│   ├── architecture.md
-│   ├── protocol-overview.md
-│   └── state-machine.md
-├── examples/
-│   └── demo-project/
-│       ├── readme.md
-│       ├── AGENTS.md
-│       ├── plan.md
-│       ├── tree.md
-│       └── decision.md
-└── scripts/
-    ├── validate-skills.py
-    └── install-local.sh
+        Shared Engineering Protocol
+                 │
+          ┌──────┴──────┐
+          ↓             ↓
+   Project Bootstrap  Feature Change
+      Workflow           Workflow
+          ↓                 ↓
+      New Project     Existing Project
 ```
 
-## Version
+The Base Protocol is defined once, at `skills/project-bootstrap-workflow/references/base-protocol.md`.
 
-当前版本统一为：
+## Core Capabilities
+
+### Engineering Control
+
+- Agent State Machine
+- L0–L4 Risk Control
+- Before Snapshot
+- Decision Log
+
+### Code Intelligence
+
+- Progressive Discovery
+- L1/L2/L3 Navigation
+- Code Graph
+- Impact / Blast Radius
+
+### Knowledge
+
+- Vector Backend
+- MCP → Python → Markdown fallback
+- Full Index
+- Incremental Sync
+- Health Check
+
+### Delivery
+
+- Git Safety
+- Validation Pipeline
+- Acceptance Criteria
+- Cross-session Plan State
+
+## Knowledge System
 
 ```
-v2.2.0
+MCP Vector Backend
+        ↓
+Python Local Vector Backend
+        ↓
+Markdown fallback
+```
+
+- Reuse an existing Backend first
+- When no MCP is available, try a Python project-level isolated environment
+- Use Markdown Summary only as the last resort
+- Not bound to any specific vector database product
+
+## Quick Start
+
+### New Project
+
+```text
+Use project-bootstrap-workflow to initialize and develop a new project from readme.md.
+```
+
+### Existing Project
+
+```text
+Use feature-change-workflow to modify the existing project based on the following requirement:
+<feature request>
+```
+
+### Bug Fix
+
+```text
+Use feature-change-workflow to analyze and fix the existing project based on the following issue:
+<bug description>
 ```
 
 ## Installation
 
-将两个 Skill 目录复制到对应工具的 Skills 搜索路径即可。
+### Option A — Project-local installation
 
-> 不同客户端版本的 Skills 搜索路径可能不同，应以对应工具当前官方文档为准。
-
-### Codex CLI
-
-项目级：
+Best for team projects. Clone the repository, then copy the Skill directory you need into the target agent's project-level skills directory.
 
 ```
-.agents/skills/
+git clone <your-repository-url>
+cd <your-repository-name>
 ```
 
-用户级：
+### Option B — User-level installation
+
+Best for reusing across all your personal projects. Copy the Skill directory into the target agent's user-level skills directory.
+
+### Option C — Local Installer
+
+A local-only install script (copies files locally, never auto-installs extra dependencies over the network):
 
 ```
-~/.agents/skills/
-```
-
-### Claude Code
-
-```
-.claude/skills/
-```
-
-用户级：
-
-```
-~/.claude/skills/
-```
-
-### Cursor
-
-```
-.cursor/skills/
-```
-
-用户级：
-
-```
-~/.cursor/skills/
-```
-
-### 使用安装脚本
-
-本仓库提供本地安装脚本（不联网、不执行任何包管理器安装）：
-
-```bash
 ./scripts/install-local.sh codex
 ./scripts/install-local.sh claude
 ./scripts/install-local.sh cursor
 ```
 
-脚本默认安装到项目级目录；使用 `--user` 安装到用户级目录：
+Install to the user-level directory:
 
-```bash
+```
 ./scripts/install-local.sh codex --user
 ```
 
-脚本在遇到同名 Skill 目录时不会静默覆盖，而是安全失败并给出提示。
+The script never silently overwrites an existing Skill with the same name — it fails safely with a hint.
 
-## Usage Examples
+> Skills search paths may differ between clients and versions. Always follow the target client's current official documentation.
 
-Bootstrap：
-
-```
-使用 project-bootstrap-workflow，从 readme.md 创建项目。
-```
-
-Feature：
+## What Happens After Installation
 
 ```
-使用 feature-change-workflow，实现用户登录功能。
+User Request
+    ↓
+Skill Selection
+    ↓
+Analyze
+    ↓
+Plan
+    ↓
+Code Navigation
+    ↓
+Implement
+    ↓
+Validate
+    ↓
+Commit
+    ↓
+Delivery
+```
+
+## Example
+
+`examples/demo-project/` demonstrates a complete example and the relationships between its files:
+
+| File | Responsibility |
+| --- | --- |
+| `readme.md` | Product requirement source |
+| `AGENTS.md` | AI development conventions |
+| `plan.md` | Development plan and progress |
+| `tree.md` | Directory structure explanation |
+| `decision.md` | Key engineering decision log |
+
+## Repository Layout
+
+```
+agent-engineering-workflow/
+├── README.md
+├── skills/      # Two Workflow Skills
+├── docs/        # Architecture and protocol docs
+├── examples/    # demo-project example
+└── scripts/     # Validation and install scripts
 ```
 
 ## Compatibility
 
-- 本仓库面向支持标准 `SKILL.md` 结构的 Agent Skills 工具。
-- 不同客户端对安装目录、Skill discovery、reference loading、permissions 的行为可能存在差异。
-- 本仓库不声称对任何具体客户端的特定版本 100% 兼容。
+Designed for Agent Skills-compatible coding agents.
 
-## Validation
+The exact discovery path and installation behavior may differ by client and version.
+Always follow the target client's current documentation for skill installation and discovery.
 
-仓库自带校验脚本（仅使用 Python 标准库）：
+## Development
 
-```bash
+Validate the Skill structure:
+
+```
 python scripts/validate-skills.py
 ```
 
-校验内容：目录结构、frontmatter（name / description / version / license / metadata）、name 与目录名一致、references 链接有效、版本统一、Feature Skill 未复制 Base Protocol、Markdown 基础结构。
+Checks: Skill structure, frontmatter, references, version, duplication.
+
+Suggested flow when changing the protocol:
+
+```
+Change Base Protocol → Validate → Sync both Skills → Update version
+```
+
+## Contributing
+
+If you have suggestions or encounter issues, feel free to open an [Issue](../../issues) or submit a [Pull Request](../../pulls).
+
+## Version
+
+Current version: **v2.2.0**
+
+See git history / release notes for changes.
 
 ## License
 
-MIT
+[MIT](./LICENSE)
