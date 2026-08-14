@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}管理后台 · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h1 class="text-2xl font-bold">管理后台</h1>
+  <nav class="flex gap-3 text-sm">
+    <a href="/admin/posts" class="px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-indigo-600">文章管理</a>
+    <a href="/admin/comments" class="px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-indigo-600">评论管理</a>
+    <a href="/admin/users" class="px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-600 hover:text-indigo-600">用户管理</a>
+  </nav>
+</div>
+
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <p class="text-xs text-gray-400">文章总数</p>
+    <p class="text-2xl font-bold">{{ stats.posts }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <p class="text-xs text-gray-400">用户总数</p>
+    <p class="text-2xl font-bold">{{ stats.users }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <p class="text-xs text-gray-400">评论总数</p>
+    <p class="text-2xl font-bold">{{ stats.comments }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm border border-amber-200 p-4">
+    <p class="text-xs text-amber-500">待审核文章</p>
+    <p class="text-2xl font-bold">{{ stats.pending }}</p>
+  </div>
+</div>
+
+<h2 class="text-lg font-bold mt-8 mb-3">文章状态统计</h2>
+<div class="grid gap-3 sm:grid-cols-4">
+  {% for status, label in status_labels.items() %}
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+    <p class="text-xs text-gray-400">{{ label }}</p>
+    <p class="text-2xl font-bold">{{ by_status.get(status, 0) }}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<h2 class="text-lg font-bold mt-8 mb-3">最近活动（文章）</h2>
+{% if recent_posts %}
+<ul class="bg-white rounded-xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+  {% for post in recent_posts %}
+  <li class="px-4 py-3 flex items-center justify-between text-sm">
+    <span class="font-medium">{{ post.title }}</span>
+    <span class="text-gray-400">
+      {{ status_labels.get(post.status, post.status) }} · {{ post.author.effective_display_name }} · {{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="text-gray-400 text-sm">暂无文章。</p>
+{% endif %}
+{% endblock %}

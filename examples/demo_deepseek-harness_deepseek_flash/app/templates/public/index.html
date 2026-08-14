@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}首页 · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h1 class="text-2xl font-bold">最新文章</h1>
+  {% if current_user %}
+  <a href="/posts/new" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700">写文章</a>
+  {% endif %}
+</div>
+
+{% if posts %}
+<div class="grid gap-4 sm:grid-cols-2">
+  {% for post in posts %}
+    {% include "components/post_card.html" %}
+  {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-16 text-gray-400">
+  <i data-lucide="inbox" class="mx-auto mb-3"></i>
+  <p>还没有已发布的文章</p>
+</div>
+{% endif %}
+{% endblock %}

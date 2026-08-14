@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ settings.app_name }}{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/htmx.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col bg-gray-50 text-gray-900 antialiased">
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 text-lg font-bold text-indigo-600">
+        <i data-lucide="rss"></i>
+        <span>{{ settings.app_name }}</span>
+      </a>
+      <div class="flex items-center gap-4 text-sm">
+        {% if current_user %}
+          <a href="/posts/mine" class="text-gray-600 hover:text-indigo-600">我的文章</a>
+          {% if current_user.is_admin %}
+            <a href="/admin" class="text-gray-600 hover:text-indigo-600">管理后台</a>
+          {% endif %}
+          <span class="text-gray-300">|</span>
+          <span class="text-gray-700 font-medium">{{ current_user.effective_display_name }}</span>
+          <form method="post" action="/logout">
+            <button type="submit" class="text-gray-500 hover:text-red-600">注销</button>
+          </form>
+        {% else %}
+          <a href="/login" class="text-gray-600 hover:text-indigo-600">登录</a>
+          <a href="/register" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700">注册</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  {% if flashed_messages %}
+  <div class="w-full max-w-5xl mx-auto px-4 mt-4 space-y-2">
+    {% for m in flashed_messages %}
+    <div class="px-4 py-2 rounded-lg text-sm border
+      {% if m.category == 'success' %}bg-green-50 text-green-700 border-green-200
+      {% elif m.category == 'error' %}bg-red-50 text-red-700 border-red-200
+      {% else %}bg-blue-50 text-blue-700 border-blue-200{% endif %}">
+      {{ m.message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-6">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="py-6 text-center text-xs text-gray-400">
+    {{ settings.app_name }} · SSR + HTMX + Alpine.js + Tailwind CSS
+  </footer>
+
+  <script>document.addEventListener('DOMContentLoaded', function () { if (window.lucide) lucide.createIcons(); });</script>
+  <script src="{{ url_for('static', path='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

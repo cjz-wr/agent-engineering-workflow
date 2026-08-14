@@ -1,0 +1,15 @@
+<div id="comment-{{ comment.id }}" class="bg-white rounded-lg border border-gray-200 p-4">
+  <div class="flex items-center justify-between mb-1">
+    <div class="flex items-center gap-2 text-sm">
+      <span class="font-medium text-gray-800">{{ comment.author.effective_display_name }}</span>
+      <span class="text-xs text-gray-400">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+    </div>
+    {% if current_user and (current_user.is_admin or current_user.id == comment.author_id) %}
+    <button hx-post="/comments/{{ comment.id }}/delete"
+            hx-target="#comment-{{ comment.id }}" hx-swap="outerHTML"
+            hx-confirm="确定删除这条评论？"
+            class="text-xs text-gray-400 hover:text-red-600">删除</button>
+    {% endif %}
+  </div>
+  <p class="text-sm text-gray-700 whitespace-pre-wrap">{{ comment.content }}</p>
+</div>

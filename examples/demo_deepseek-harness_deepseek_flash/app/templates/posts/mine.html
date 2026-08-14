@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}我的文章 · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <h1 class="text-2xl font-bold">我的文章</h1>
+  <a href="/posts/new" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700">写文章</a>
+</div>
+
+{% if posts %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-500">
+      <tr>
+        <th class="px-4 py-3">标题</th>
+        <th class="px-4 py-3">状态</th>
+        <th class="px-4 py-3">更新于</th>
+        <th class="px-4 py-3">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr class="border-t border-gray-100">
+        <td class="px-4 py-3 font-medium">{{ post.title }}</td>
+        <td class="px-4 py-3">
+          <span class="px-2 py-0.5 rounded-full text-xs
+            {% if post.status == 'published' %}bg-green-100 text-green-700
+            {% elif post.status == 'submitted' %}bg-amber-100 text-amber-700
+            {% elif post.status == 'rejected' %}bg-red-100 text-red-700
+            {% else %}bg-gray-100 text-gray-600{% endif %}">
+            {% if post.status == 'published' %}已发布
+            {% elif post.status == 'submitted' %}待审核
+            {% elif post.status == 'rejected' %}已驳回
+            {% else %}草稿{% endif %}
+          </span>
+        </td>
+        <td class="px-4 py-3 text-gray-400">{{ post.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td class="px-4 py-3 space-x-2">
+          <a href="/posts/{{ post.id }}/edit" class="text-indigo-600 hover:underline">编辑</a>
+          <button hx-post="/posts/{{ post.id }}/delete" hx-target="closest tr" hx-swap="outerHTML"
+                  hx-confirm="确定删除这篇文章？" class="text-red-500 hover:underline">删除</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-gray-400 text-center py-16">还没有文章，去写一篇吧。</p>
+{% endif %}
+{% endblock %}

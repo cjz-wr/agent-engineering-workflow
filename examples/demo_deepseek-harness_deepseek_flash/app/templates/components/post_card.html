@@ -1,0 +1,11 @@
+<a href="/posts/{{ post.slug }}"
+   class="block bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:shadow-md hover:border-indigo-200 transition">
+  <div class="flex items-center gap-2 mb-2 text-xs text-gray-400">
+    <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600">已发布</span>
+    <span>{{ post.author.effective_display_name }}</span>
+    <span>·</span>
+    <span>{{ post.published_at.strftime('%Y-%m-%d') if post.published_at else '' }}</span>
+  </div>
+  <h2 class="text-lg font-semibold text-gray-900 mb-1">{{ post.title }}</h2>
+  <p class="text-sm text-gray-500 line-clamp-2">{{ post.content[:120] }}</p>
+</a>

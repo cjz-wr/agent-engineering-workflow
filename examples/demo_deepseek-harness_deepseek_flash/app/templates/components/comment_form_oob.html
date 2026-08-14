@@ -1,0 +1,13 @@
+<div id="comment-form-wrap" hx-swap-oob="outerHTML">
+  <form hx-post="/posts/{{ post.slug }}/comments"
+        hx-target="#comments-list" hx-swap="beforeend"
+        hx-on::after-request="this.reset()"
+        class="flex gap-2 mb-2">
+    <input type="text" name="content" required placeholder="写下你的评论…"
+           class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+    <button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm hover:bg-indigo-700">发表</button>
+  </form>
+  {% if error_message %}
+  <p class="text-sm text-red-600 mb-2">{{ error_message }}</p>
+  {% endif %}
+</div>

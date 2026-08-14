@@ -1,0 +1,31 @@
+<tr id="post-row-{{ post.id }}" class="border-t border-gray-100">
+  <td class="px-4 py-3">
+    <div class="font-medium">{{ post.title }}</div>
+    <div class="text-xs text-gray-400">/{{ post.slug }}</div>
+  </td>
+  <td class="px-4 py-3">{{ post.author.effective_display_name }}</td>
+  <td class="px-4 py-3">
+    <span class="px-2 py-0.5 rounded-full text-xs
+      {% if post.status == 'published' %}bg-green-100 text-green-700
+      {% elif post.status == 'submitted' %}bg-amber-100 text-amber-700
+      {% elif post.status == 'rejected' %}bg-red-100 text-red-700
+      {% else %}bg-gray-100 text-gray-600{% endif %}">
+      {{ status_labels.get(post.status, post.status) }}
+    </span>
+  </td>
+  <td class="px-4 py-3 space-x-3 text-sm">
+    {% if post.status == 'published' %}
+    <button hx-post="/admin/posts/{{ post.id }}/unpublish" hx-target="#post-row-{{ post.id }}" hx-swap="outerHTML"
+            class="text-amber-600 hover:underline">取消发布</button>
+    {% else %}
+    <button hx-post="/admin/posts/{{ post.id }}/publish" hx-target="#post-row-{{ post.id }}" hx-swap="outerHTML"
+            class="text-green-600 hover:underline">发布</button>
+    {% endif %}
+    {% if post.status == 'submitted' %}
+    <button hx-post="/admin/posts/{{ post.id }}/reject" hx-target="#post-row-{{ post.id }}" hx-swap="outerHTML"
+            class="text-red-600 hover:underline">驳回</button>
+    {% endif %}
+    <button hx-post="/admin/posts/{{ post.id }}/delete" hx-target="#post-row-{{ post.id }}" hx-swap="outerHTML"
+            hx-confirm="确定删除这篇文章？" class="text-red-500 hover:underline">删除</button>
+  </td>
+</tr>

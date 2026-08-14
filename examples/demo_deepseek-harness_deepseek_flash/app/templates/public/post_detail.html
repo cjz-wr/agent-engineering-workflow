@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }} · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div id="reading-progress" class="fixed top-0 left-0 h-0.5 bg-indigo-500 z-50" style="width:0%"></div>
+
+<article class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-10">
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold mb-3">{{ post.title }}</h1>
+    <div class="flex flex-wrap items-center gap-3 text-sm text-gray-400">
+      <span class="flex items-center gap-1"><i data-lucide="user" class="w-4 h-4"></i>{{ post.author.effective_display_name }}</span>
+      <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-4 h-4"></i>{{ post.published_at.strftime('%Y-%m-%d %H:%M') if post.published_at else '' }}</span>
+    </div>
+  </div>
+  <div id="markdown-body" class="markdown-body">{{ post.content }}</div>
+</article>
+
+<section id="comments" class="mt-8">
+  <h2 class="text-xl font-bold mb-4">评论（{{ comments|length }}）</h2>
+  {% if current_user %}
+    {% include "components/comment_form.html" %}
+  {% else %}
+    <p class="text-sm text-gray-500 mb-4">登录后可发表评论。</p>
+  {% endif %}
+  <div id="comments-list" class="space-y-4 mt-4">
+    {% for comment in comments %}
+      {% include "components/comment_item.html" %}
+    {% endfor %}
+  </div>
+</section>
+
+<button id="back-to-top" class="fixed bottom-6 right-6 w-10 h-10 rounded-full bg-indigo-600 text-white shadow-lg hover:bg-indigo-700" style="display:none">↑</button>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var el = document.getElementById('markdown-body');
+  if (el && window.marked && window.DOMPurify) {
+    el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent));
+  }
+});
+</script>
+{% endblock %}

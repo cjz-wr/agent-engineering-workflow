@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑文章' if post else '写文章' }} · {{ settings.app_name }}{% endblock %}
+{% block content %}
+<div x-data="editor()" class="space-y-4">
+  <div class="flex items-center justify-between">
+    <h1 class="text-2xl font-bold">{{ '编辑文章' if post else '写文章' }}</h1>
+    {% if post %}
+    <span class="px-3 py-1 rounded-full text-xs font-medium
+      {% if post.status == 'published' %}bg-green-100 text-green-700
+      {% elif post.status == 'submitted' %}bg-amber-100 text-amber-700
+      {% elif post.status == 'rejected' %}bg-red-100 text-red-700
+      {% else %}bg-gray-100 text-gray-600{% endif %}">
+      {% if post.status == 'published' %}已发布
+      {% elif post.status == 'submitted' %}待审核
+      {% elif post.status == 'rejected' %}已驳回
+      {% else %}草稿{% endif %}
+    </span>
+    {% endif %}
+  </div>
+
+  {% if post %}
+  <p class="text-xs text-gray-400">
+    Slug：<code class="text-indigo-600">{{ post.slug }}</code>
+    · 创建于 {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}
+    {% if post.published_at %} · 发布于 {{ post.published_at.strftime('%Y-%m-%d %H:%M') }}{% endif %}
+  </p>
+  {% endif %}
+
+  {% if post and post.status == 'rejected' %}
+  <div class="rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+    该文章已被驳回，请修改后重新提交审核。
+  </div>
+  {% endif %}
+
+  <form method="post" action="{{ ('/posts/' ~ post.id) if post else '/posts' }}" class="space-y-4">
+    <input type="hidden" name="action" x-model="action" value="save">
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+      <input type="text" name="title" value="{{ title }}" required x-model="title" x-on:input="suggestSlug()"
+             class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-300">
+      <p class="text-xs text-gray-400 mt-1">Slug 建议：<code class="text-indigo-600" x-text="slugPreview || '—'">—</code></p>
+    </div>
+
+    <div>
+      <div class="flex items-center justify-between mb-1">
+        <label class="block text-sm font-medium text-gray-700">内容（Markdown）</label>
+        <div class="flex gap-1 text-xs">
+          <button type="button" @click="mode='write'" :class="mode==='write' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded">编辑</button>
+          <button type="button" @click="mode='preview'" :class="mode==='preview' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded">预览</button>
+          <button type="button" @click="mode='split'" :class="mode==='split' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-600'" class="px-3 py-1 rounded">分屏</button>
+        </div>
+      </div>
+      <div class="grid gap-2" :class="mode==='split' ? 'grid-cols-2' : 'grid-cols-1'">
+        <textarea name="content" rows="16" x-model="content" x-show="mode!=='preview'"
+                  class="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                  placeholder="支持 Markdown 语法…">{{ content }}</textarea>
+        <div x-show="mode!=='write'" x-cloak>
+          <div class="min-h-[16rem] rounded-lg border border-gray-200 bg-white px-4 py-3 markdown-body"
+               x-html="rendered()"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap gap-2">
+      <button type="submit" @click="action='save'" class="px-4 py-2 rounded-lg bg-gray-800 text-white text-sm hover:bg-gray-700">保存草稿</button>
+      <button type="submit" @click="action='submit'" class="px-4 py-2 rounded-lg bg-amber-600 text-white text-sm hover:bg-amber-700">提交审核</button>
+      {% if post and post.status == 'published' %}
+      <button type="submit" @click="action='unpublish'" class="px-4 py-2 rounded-lg bg-gray-500 text-white text-sm hover:bg-gray-400">取消发布</button>
+      {% else %}
+        {% if current_user.is_admin or settings.allow_user_publish %}
+        <button type="submit" @click="action='publish'" class="px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700">直接发布</button>
+        {% endif %}
+      {% endif %}
+    </div>
+  </form>
+
+  {% if post %}
+  <form method="post" action="/posts/{{ post.id }}/delete" class="pt-4 border-t border-gray-200">
+    <button type="submit" class="text-sm text-red-500 hover:text-red-700">删除这篇文章</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script>
+function editor() {
+  return {
+    mode: 'split',
+    action: 'save',
+    title: {{ title|tojson }},
+    content: {{ content|tojson }},
+    slugPreview: '',
+    suggestSlug() {
+      var s = this.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      this.slugPreview = s || '';
+    },
+    rendered() {
+      if (!window.marked || !window.DOMPurify) return this.content;
+      return DOMPurify.sanitize(marked.parse(this.content));
+    }
+  };
+}
+</script>
+{% endblock %}
