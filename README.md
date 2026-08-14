@@ -172,4 +172,4 @@ python scripts/validate-skills.py
 
 ## License
 
-MIT。版权持有人信息请由发布者自行填写，见 `LICENSE`。
+MIT
