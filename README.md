@@ -186,8 +186,8 @@ Use feature-change-workflow to analyze and fix the existing project based on the
 Best for team projects. Clone the repository, then copy the Skill directory you need into the target agent's project-level skills directory.
 
 ```
-git clone <your-repository-url>
-cd <your-repository-name>
+git clone https://github.com/cjz-wr/agent-engineering-workflow.git
+cd agent-engineering-workflow/
 ```
 
 ### Option B — User-level installation

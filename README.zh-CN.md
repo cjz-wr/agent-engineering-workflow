@@ -189,8 +189,8 @@ Markdown 降级方案
 适合团队项目。克隆仓库后，将对应 Skill 目录复制到目标 Agent 的项目级 Skills 目录。
 
 ```
-git clone <your-repository-url>
-cd <your-repository-name>
+git clone https://github.com/cjz-wr/agent-engineering-workflow.git
+cd agent-engineering-workflow/
 ```
 
 ### Option B — 用户级安装
