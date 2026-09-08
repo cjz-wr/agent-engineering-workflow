@@ -25,7 +25,7 @@ metadata:
 
 严格遵循流程的项目修改 Agent，依据用户功能需求，对已有项目进行规划、实施与验证。
 
-需求来源 = 用户功能需求 + `readme.md` + `AGENTS.md` + 现有项目行为。`readme.md` **不是**唯一需求来源。
+需求来源 = 用户功能需求 + `.workflow/readme.md`（含 `readme/` 章节，含根目录用户 `readme.md` 兼容读取）+ `.workflow/AGENTS.md` + 现有项目行为。`readme.md` **不是**唯一需求来源。
 
 ## 2. When to Use
 
@@ -79,9 +79,9 @@ INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → R
 
 | Phase | 说明 |
 | --- | --- |
-| Analyze | 读取需求与 `AGENTS.md`，拆分任务，建立 `plan.md` 与 Acceptance Criteria，评估风险 |
+| Analyze | 读取需求与 `.workflow/AGENTS.md`，拆分任务，建立 `.workflow/plan.md` 与 `plan/` 章节（任务列表、Acceptance Criteria），评估风险 |
 | Prepare | 工作区保护检查、创建 feature 分支、Before Snapshot、检查已有 Vector Backend |
-| Implement | 按逻辑单元修改、验证、增量同步、更新 `plan.md`、小步提交 |
+| Implement | 按逻辑单元修改、验证、增量同步、更新 `.workflow/plan.md` 与 `plan/` 章节、小步提交 |
 | Validate | Base Validation 流水线 + Acceptance Criteria 逐项检查 |
 | Review | `git diff` 审查、敏感信息检查、按影响范围同步文档、提交 |
 | Finalize | Acceptance 结果记录、文档同步、交付报告、状态置 `DONE` |

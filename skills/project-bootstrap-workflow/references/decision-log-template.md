@@ -1,6 +1,6 @@
 # decision.md Template
 
-> v2.2 — 从 Base Protocol 第 6.3 节提取，可直接复制使用。
+> v2.3 — 从 Base Protocol 第 6.3 节提取。文件位于 `.workflow/decision.md`，可直接复制使用。
 
 ## Decision
 

@@ -1,8 +1,8 @@
 ---
 name: project-bootstrap-workflow
 description: >
-  Bootstrap a new software project from readme.md using the project's strict engineering workflow.
-  Use when starting a greenfield project, scaffolding from requirements, initializing project documents,
+  Bootstrap a new software project from .workflow/readme.md using the project's strict engineering workflow.
+  Use when starting a greenfield project, scaffolding from requirements, initializing project documents (.workflow/),
   Git workflow, AGENTS.md, plan.md, tree.md, knowledge indexing, validation, or delivery.
 version: "2.2.0"
 license: MIT
@@ -25,23 +25,23 @@ metadata:
 
 严谨的全栈开发 Agent 工作流，依据项目需求完成从脚手架搭建到交付的完整流程。
 
-唯一需求来源：项目根目录下的 **`readme.md`**。Agent MUST NOT 臆造 `readme.md` 中不存在的需求。
+唯一需求来源：**`.workflow/readme.md`**（及 `.workflow/readme/` 章节）。Agent MUST NOT 臆造其中不存在的需求。
 
 ## 2. When to Use
 
 - new project（新项目）
 - greenfield（从零开始）
 - bootstrap / scaffold（脚手架）
-- 从 `readme.md` 初始化项目
+- 从 `.workflow/readme.md`（含 `readme/` 章节）初始化项目
 - project initialization（项目初始化）
 
 ## 3. Core Rules
 
 Agent MUST：
 
-- 以 `readme.md` 为唯一需求来源，不得臆造需求。
+- 以 `.workflow/readme.md`（含 `readme/` 章节）为唯一需求来源，不得臆造需求。
 - 遵循 Git Workflow 与 Conventional Commits。
-- 维护 `plan.md` 最新状态，任意时刻可中断恢复。
+- 维护 `.workflow/plan.md` 与 `plan/` 章节最新状态，任意时刻可中断恢复。
 - 按逻辑单元小步提交，不得一次性提交全部代码。
 - 按适用性执行 Validation 流水线。
 - 遵循知识索引与 Vector Backend 生命周期（MCP → Python → Markdown）。
@@ -49,7 +49,7 @@ Agent MUST：
 Agent MUST NOT：
 
 - 修改与任务无关的文件。
-- 删除用户提供的任何源材料（`readme.md` 等）。
+- 删除用户提供的任何源材料（`.workflow/readme.md`、根目录 `readme.md` 等）。
 - 执行破坏性 Git 操作（`reset --hard` / `push --force` / 非必要 `rebase`）。
 - 修改环境变量或读取敏感信息。
 - 引入无必要依赖。
@@ -64,8 +64,8 @@ INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → R
 
 | Phase | 状态 | 说明 |
 | --- | --- | --- |
-| 1. Requirement Analysis | INIT → ANALYZE → PLAN_READY | 读取并解析 `readme.md`，初始化 `plan.md` |
-| 2. Project Bootstrap | PLAN_READY → PREPARE | 脚手架、`AGENTS.md`、`.gitignore`、`git init`、首次全量索引 |
+| 1. Requirement Analysis | INIT → ANALYZE → PLAN_READY | 读取并解析 `.workflow/readme.md`（含 `readme/` 章节），初始化 `.workflow/plan.md` 与 `plan/` 章节 |
+| 2. Project Bootstrap | PLAN_READY → PREPARE | 脚手架、`.workflow/AGENTS.md`、`.gitignore`、`git init`、首次全量索引 |
 | 3. Incremental Development | PREPARE → IMPLEMENTING | feature 分支、按逻辑单元开发、增量同步 |
 | 4. Verification | IMPLEMENTING → VERIFYING → REVIEW → COMMITTING → DONE | 验证、同步文档、最终提交、交付报告 |
 
@@ -73,13 +73,13 @@ INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → R
 
 | 文件 | 职责 |
 | --- | --- |
-| `readme.md` | 产品需求来源（用户提供） |
-| `AGENTS.md` | AI 开发规范 |
-| `plan.md` | 开发计划、进度、Before Snapshot、状态标记 |
-| `tree.md` | 目录结构说明 |
-| `decision.md` | 关键工程决策日志 |
+| `.workflow/readme.md` | 需求入口文件（用户提供；可拆章至 `.workflow/readme/`） |
+| `.workflow/AGENTS.md` | AI 开发规范 |
+| `.workflow/plan.md` | 计划入口（总览 + 状态标记；内容拆章至 `.workflow/plan/`） |
+| `.workflow/tree.md` | 目录结构说明 |
+| `.workflow/decision.md` | 关键工程决策日志 |
 
-MUST NOT 使用 `prompt.md`。
+> `.workflow/` 存放全部工作流文档；`docs/` 仅存放项目业务文档。MUST NOT 使用 `prompt.md`。
 
 ## 6. Protocol References
 

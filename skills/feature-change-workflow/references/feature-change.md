@@ -12,7 +12,7 @@
 
 你是一名严格遵循流程的项目修改 Agent，任务是依据用户描述的功能需求，对已有项目进行规划、实施与验证。
 
-需求来源 = 用户功能需求 + `readme.md` + `AGENTS.md` + 现有项目行为。`readme.md` 不是唯一需求来源。
+需求来源 = 用户功能需求 + `.workflow/readme.md`（含 `readme/` 章节，含根目录用户 `readme.md` 兼容读取）+ `.workflow/AGENTS.md` + 现有项目行为。`readme.md` 不是唯一需求来源。
 
 ### 1.1 术语约束
 
@@ -55,23 +55,24 @@
 
 ## 3. Documents（文档体系）
 
-- 文档职责定义与 `prompt.md` 禁用规则：遵循 Base Skill 第 2 节。
-- `tree.md` 记录约束：遵循 Base Skill 第 2.2 节。
+- 文档职责定义、`.workflow/` 文档根目录与 `docs/` 业务文档分离、`prompt.md` 禁用规则：遵循 Base Skill 第 2.1 节。
+- 章节拆分约定（入口 + `index.md` + kebab-case 章节文件）：遵循 Base Skill 第 2.2 节。
+- `.workflow/tree.md` 记录约束：遵循 Base Skill 第 2.3 节。
 
 ### 3.1 AGENTS.md 处理
 
-- 已存在：MUST 读取并遵守。
-- 不存在：按 Base Skill 第 2.3 节的创建规则处理，MUST NOT 重新定义完整模板。
+- 已存在（`.workflow/AGENTS.md` 或项目根目录）：MUST 读取并遵守。
+- 不存在：按 Base Skill 第 2.4 节的创建规则处理，MUST NOT 重新定义完整模板。
 
 ### 3.2 文档更新规则：按影响范围更新
 
 MUST NOT 每次修改都更新所有文档。MUST 仅按变更影响范围更新对应文档：
 
-- 功能变化 → 更新 `readme.md`
-- AI 规范变化 → 更新 `AGENTS.md`
-- 文件结构变化 → 更新 `tree.md`
-- 计划变化 → 更新 `plan.md`
-- 关键决策 → 追加 `decision.md`
+- 功能变化 → 更新 `.workflow/readme.md`（或 `readme/` 对应章节）
+- AI 规范变化 → 更新 `.workflow/AGENTS.md`
+- 文件结构变化 → 更新 `.workflow/tree.md`
+- 计划变化 → 更新 `.workflow/plan.md` 及 `plan/` 对应章节
+- 关键决策 → 追加 `.workflow/decision.md`
 
 ---
 
@@ -120,10 +121,10 @@ MUST NOT：
 
 ### Phase 1：Analyze（分析） — `INIT → ANALYZE → PLAN_READY`
 
-1. 阅读 `readme.md` 与 `AGENTS.md`，确认需求与项目定位一致。
+1. 阅读需求来源（`.workflow/readme.md` 含 `readme/` 章节；若项目根目录存在用户 `readme.md` 一并读取）与 `.workflow/AGENTS.md`，确认需求与项目定位一致。
 2. 理解需求，拆分任务，评估风险等级（遵循 Base Skill 第 6.1 节）。
 3. 执行影响分析（见第 7 节）。
-4. 在 `plan.md` 建立任务列表与 Acceptance Criteria（见第 8 节），状态标记为 `PLAN_READY`。
+4. 在 `.workflow/plan/task-list.md` 建立任务列表、`.workflow/plan/acceptance-criteria.md` 建立 Acceptance Criteria（见第 8 节），并更新 `.workflow/plan.md` 状态标记为 `PLAN_READY`。
 
 ### Phase 2：Prepare（准备） — `PLAN_READY → PREPARE`
 
@@ -134,12 +135,12 @@ MUST NOT：
 
 ### Phase 3：Implement（增量实施） — `PREPARE → IMPLEMENTING`
 
-1. 严格依据 `plan.md` 清单逐项实施。
+1. 严格依据 `.workflow/plan/task-list.md` 清单逐项实施。
 2. 每完成一个逻辑单元：
    - 执行验证（Base Validation Protocol + 本 Feature Acceptance Criteria）。
    - 执行 Vector Backend 增量同步（遵循 Base Skill 第 8.3.6 节）。
    - 验证通过后执行小步提交（Conventional Commits，遵循 Base Skill 第 4.3 节）。
-3. 遇到需求模糊点 MUST 转入 `WAIT_USER` 并记录到 `plan.md`，不得自行假设。
+3. 遇到需求模糊点 MUST 转入 `WAIT_USER` 并记录到 `plan/open-questions.md`，不得自行假设。
 
 ### Phase 4：Validate（验证） — `IMPLEMENTING → VERIFYING`
 
@@ -154,12 +155,12 @@ MUST NOT：
 
 ### Phase 6：Finalize（收尾） — `REVIEW → COMMITTING → DONE`
 
-1. 按影响范围更新 `readme.md`、`tree.md`（如涉及）。
-2. 更新 `plan.md`：完成项 `- [ ]` 改为 `- [x]`，记录 Acceptance 结果与剩余问题。
+1. 按影响范围更新 `.workflow/readme.md`（或 `readme/` 对应章节）、`.workflow/tree.md`（如涉及）。
+2. 更新 `.workflow/plan/task-list.md`：完成项 `- [ ]` 改为 `- [x]`；在 `.workflow/plan/acceptance-criteria.md` 记录 Acceptance 结果与剩余问题，并同步 `.workflow/plan.md` 状态标记。
 3. 确认所有改动已纳入 Git 控制。
 4. 输出交付报告（见第 9 节），状态置为 `DONE`。
 
-> **Plan 持久化**：Analyze 创建/更新计划，Implement 更新进度，Finalize 记录验收与剩余问题；任务中断时 MUST 确保 `plan.md` 保存当前状态（遵循 Base Skill 第 2.4 节）。
+> **Plan 持久化**：Analyze 创建/更新计划，Implement 更新进度，Finalize 记录验收与剩余问题；任务中断时 MUST 确保 `.workflow/plan.md` 与 `plan/` 章节保存当前状态（遵循 Base Skill 第 2.5 节）。
 
 ---
 
@@ -204,10 +205,10 @@ Override:
 
 ## 8. Feature-specific Acceptance Criteria（验收标准）
 
-Analyze 阶段 MUST 在 `plan.md` 建立：
+Analyze 阶段 MUST 在 `.workflow/plan/acceptance-criteria.md` 建立：
 
 ```
-## Acceptance Criteria
+# Acceptance Criteria
 
 - [ ] <验收条件 1>
 - [ ] <验收条件 2>

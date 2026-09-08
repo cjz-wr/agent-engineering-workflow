@@ -2,7 +2,7 @@
 
 > 版本：v2.2
 >
-> 定位：共享基础工程协议。由 `project-bootstrap-workflow` Skill 承载，并被 `feature-change-workflow` Skill 继承。基于 `readme.md` 需求，从零搭建项目并完成增量开发。
+> 定位：共享基础工程协议。由 `project-bootstrap-workflow` Skill 承载，并被 `feature-change-workflow` Skill 继承。基于 `.workflow/readme.md`（及 `.workflow/readme/` 章节）需求，从零搭建项目并完成增量开发。
 >
 > 适用对象：AI Coding Agent（Codex、Claude Code、Cursor Agent、ChatGPT Agent 等）。
 
@@ -12,7 +12,7 @@
 
 你是一名严谨的全栈开发 Agent，任务是依据项目需求完成从脚手架搭建到交付的完整开发流程。
 
-你的唯一需求来源是项目根目录下的 **`readme.md`**。
+你的唯一需求来源是 **`.workflow/readme.md`**（及 `.workflow/readme/` 章节）。若用户已在项目根目录提供 `readme.md`，同样视为需求输入，MUST 读取并遵守（见第 2.1 节兼容说明）。
 
 > 本 Skill 是 **Base Protocol**：定义完整工程能力。Feature Change Workflow Skill 继承本 Skill，只定义已有项目修改场景的差异，不再重复完整定义。
 
@@ -31,28 +31,73 @@
 
 ## 2. Documents（文档体系）
 
-### 2.1 文档职责定义
+### 2.1 文档根目录与职责
+
+工作流文档与项目业务文档分离：
+
+- **工作流文档**：Agent 开发流程产生的文档（需求、计划、AI 规范、目录说明、决策日志等），统一存放于项目根目录 **`.workflow/`**。
+- **项目业务文档**：面向产品 / 用户的文档（架构说明、接口文档、用户手册等），统一存放于 **`docs/`**。
+
+MUST NOT 将工作流文档写入 `docs/`；MUST NOT 将业务文档写入 `.workflow/`。
+
+工作流文档结构：
+
+```text
+.workflow/
+├── readme.md           # 需求入口文件（用户提供 / 维护）
+├── readme/             # readme 章节拆分目录
+│   ├── index.md        # readme 章节索引（Agent 统一读取入口）
+│   └── <kebab-case>.md # 每个一级章节一个文件（按需拆分）
+├── plan.md             # 计划入口文件（总览 + 当前状态标记）
+├── plan/               # plan 章节拆分目录
+│   ├── index.md        # plan 章节索引（Agent 统一读取入口）
+│   └── <kebab-case>.md # 每个一级章节一个文件（按需拆分）
+├── AGENTS.md           # AI 开发规范（行为约束与项目约定）
+├── tree.md             # 目录结构说明
+└── decision.md         # 关键工程决策日志（Decision Log）
+```
 
 | 文件 | 职责 | 维护时机 |
 | --- | --- | --- |
-| `readme.md` | 产品需求来源（用户提供） | 由用户维护，Agent MUST NOT 臆造其内容 |
-| `AGENTS.md` | AI 开发规范（行为约束与项目约定） | Phase 2 创建，规范变更时更新 |
-| `plan.md` | 开发计划、进度、Before Snapshot、状态标记 | 每个逻辑单元完成后更新 |
-| `tree.md` | 目录结构说明 | 文件增删或移动时立即更新 |
-| `decision.md` | 关键工程决策日志（Decision Log） | 触发决策事件时追加 |
+| `.workflow/readme.md` | 需求入口文件（用户提供） | 由用户维护，Agent MUST NOT 臆造其内容 |
+| `.workflow/readme/index.md` | readme 章节索引，列出全部章节文件 | 章节增删时同步更新 |
+| `.workflow/readme/*.md` | readme 各章节正文（每个一级章节一个文件） | 对应需求变化时更新 |
+| `.workflow/AGENTS.md` | AI 开发规范（行为约束与项目约定） | Phase 2 创建，规范变更时更新 |
+| `.workflow/plan.md` | 计划入口文件：总体目标 + 当前状态标记 | 每个逻辑单元完成后更新 |
+| `.workflow/plan/index.md` | plan 章节索引，列出全部章节文件 | 章节增删时同步更新 |
+| `.workflow/plan/*.md` | plan 各章节正文（任务、快照、状态等） | 每个逻辑单元完成后更新对应章节 |
+| `.workflow/tree.md` | 目录结构说明 | 文件增删或移动时立即更新 |
+| `.workflow/decision.md` | 关键工程决策日志（Decision Log） | 触发决策事件时追加 |
 
-> **MUST NOT 使用 `prompt.md`。** 项目长期开发规范统一写入 `AGENTS.md`。
+> **MUST NOT 使用 `prompt.md`。** 项目长期开发规范统一写入 `.workflow/AGENTS.md`。
 
-### 2.2 tree.md 记录约束
+> **兼容说明**：若用户已在项目根目录提供 `readme.md`，视为有效需求输入，Agent MUST 读取并遵守，MUST NOT 移动或删除；其内容 MAY 收录 / 链接至 `.workflow/readme.md`。工作流内部文档一律以 `.workflow/` 为准，MUST NOT 在根目录重建 `plan.md` / `tree.md` / `decision.md` / `AGENTS.md` 等副本。
 
-`tree.md` MUST NOT 记录以下内容：
+### 2.2 章节拆分约定（index + kebab-case）
 
-- `node_modules/`、`build/`、`dist/`、`.git/` 等依赖与产物目录。
+`readme` 与 `plan` 属于会随开发持续增长的文档。为避免单文件无限膨胀，遵循以下拆分约定：
+
+- 文档内容按**一级标题（`#`）章节**拆分，每个章节一个独立文件，存放于 `.workflow/readme/` 或 `.workflow/plan/`。
+- 章节文件名 = 章节主题，使用英文 `kebab-case`，例如 `task-list.md`、`acceptance-criteria.md`、`vector-backend-status.md`；中文标题保留在文件正文的标题中。
+- 入口文件（`.workflow/readme.md` / `.workflow/plan.md`）保持简短：标题、定位、当前状态标记、指向 `index.md` 的链接。
+- `index.md` 为章节索引与 Agent 的统一读取入口：MUST 列出全部章节（章节标题 + 文件名 + 职责 / 摘要）。新增、删除、重命名章节 MUST 同步更新 `index.md`。
+- 拆章时机：文档持续增长、单文件已难以维护时 MUST 拆分；简短文档 MAY 仅保留入口文件而不拆分。
+
+Agent 读取约定：
+
+- 读取 `readme` / `plan` 时，MUST 先读**入口文件 + `index.md`** 定位所需章节，再按需读取单个章节文件。
+- MUST NOT 一次性读取全部章节（遵循 10.1 Token 效率）。
+
+### 2.3 tree.md 记录约束
+
+`.workflow/tree.md` MUST NOT 记录以下内容：
+
+- `node_modules/`、`build/`、`dist/`、`.git/`、`.workflow/` 等依赖、产物与工作流文档目录。
 - 临时文件、缓存文件、日志文件。
 
-### 2.3 AGENTS.md 创建模板
+### 2.4 AGENTS.md 创建模板
 
-Bootstrap 创建 `AGENTS.md` 时 SHOULD 至少包含以下基础条目：
+Bootstrap 创建 `.workflow/AGENTS.md` 时 SHOULD 至少包含以下基础条目：
 
 - 项目技术栈与构建 / 测试命令。
 - AI 行为约束（引用本 Skill 的 Constraints 与 Git Workflow）。
@@ -61,18 +106,25 @@ Bootstrap 创建 `AGENTS.md` 时 SHOULD 至少包含以下基础条目：
 
 Feature Change Skill 复用本模板，MUST NOT 重复定义。
 
-### 2.4 plan.md 结构
+### 2.5 plan.md 入口与 plan/ 章节
 
-`plan.md` SHOULD 至少包含以下区块：
+`.workflow/plan.md`（入口文件）SHOULD 至少包含：
 
-- 任务列表（`- [ ]` / `- [x]`）。
+- 总体目标与计划总览（可链接 `plan/index.md`）。
 - 当前 Agent State 标记（见第 5 节）。
-- Before Snapshot（见 6.2）。
-- 模糊点与待确认项。
-- Vector Backend Status（见 8.3.11）。
-- Acceptance Criteria（Feature Change 场景由 Feature Skill 追加）。
 
-中断恢复：MUST 保证 `plan.md` 始终保存最新状态，可从任意状态恢复。
+`.workflow/plan/index.md` MUST 登记以下标准章节（可按需扩展）：
+
+| 章节文件 | 内容 |
+| --- | --- |
+| `plan/task-list.md` | 任务列表（`- [ ]` / `- [x]`） |
+| `plan/agent-state.md` | Agent State 转换记录（见第 5 节） |
+| `plan/before-snapshot.md` | Before Snapshot（见 6.2） |
+| `plan/open-questions.md` | 模糊点与待确认项 |
+| `plan/vector-backend-status.md` | Vector Backend Status（见 8.3.11） |
+| `plan/acceptance-criteria.md` | Acceptance Criteria（Feature Change 场景由 Feature Skill 追加） |
+
+中断恢复：MUST 保证 `.workflow/plan.md` 与 `plan/index.md` 始终反映最新状态；任务中断时 Agent 可通过入口文件 + 索引快速定位并恢复，可从任意状态恢复。
 
 ---
 
@@ -80,9 +132,9 @@ Feature Change Skill 复用本模板，MUST NOT 重复定义。
 
 Agent MUST NOT 执行以下行为：
 
-- **臆造需求**：`readme.md` 未提及的功能，不得自行添加或假设。
+- **臆造需求**：`.workflow/readme.md`（含 `readme/` 章节）或根目录用户 `readme.md` 未提及的功能，不得自行添加或假设。
 - **修改无关文件**：仅触碰当前任务范围内的文件。
-- **删除用户代码**：不得删除 `readme.md` 或用户提供的任何源材料。
+- **删除用户代码**：不得删除 `.workflow/readme.md`、根目录 `readme.md` 或用户提供的任何源材料。
 - **修改部署配置**：未经要求不得改动部署、容器、编排相关配置。
 - **修改环境变量**：不得读取、写入或改动 `.env` 等环境配置中的值。
 - **引入无必要依赖**：仅安装需求明确要求或实现必需的依赖，并记录理由。
@@ -90,7 +142,7 @@ Agent MUST NOT 执行以下行为：
 
 ### 3.1 依赖修改规则
 
-新增依赖 MUST 在提交信息、`plan.md` 或 `decision.md` 中记录：
+新增依赖 MUST 在提交信息、`.workflow/plan/` 对应章节或 `.workflow/decision.md` 中记录：
 
 - 依赖名称与版本。
 - 用途。
@@ -129,7 +181,7 @@ main
 | --- | --- |
 | `feat` | 新增功能 |
 | `fix` | 修复缺陷 |
-| `docs` | 文档变更（`readme.md`、`plan.md`、`tree.md`、`AGENTS.md`、`decision.md`） |
+| `docs` | 工作流文档变更（`.workflow/` 下 `readme`、`plan`、`AGENTS.md`、`tree.md`、`decision.md` 等） |
 | `refactor` | 不改变行为的代码重构 |
 | `test` | 测试相关变更 |
 | `chore` | 构建、工具、脚手架等杂项 |
@@ -139,7 +191,7 @@ main
 ```
 feat: add user authentication module
 fix: correct date formatting in log
-docs: update plan.md and tree.md after adding auth
+docs: update .workflow plan and tree docs after adding auth
 ```
 
 ### 4.4 提交与破坏性操作禁止项
@@ -159,7 +211,7 @@ Agent MUST NOT：
 
 ### 5.1 Agent Execution State Model
 
-Agent MUST 在任意时刻明确自身所处状态，并在 `plan.md` 中记录状态转换。
+Agent MUST 在任意时刻明确自身所处状态，并在 `.workflow/plan.md`（入口状态标记）与 `plan/agent-state.md`（转换记录）中更新。
 
 ```
 INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → REVIEW → COMMITTING → DONE
@@ -168,8 +220,8 @@ INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → R
 | 状态 | 含义 | 进入条件 |
 | --- | --- | --- |
 | `INIT` | 任务启动 | 接收任务 |
-| `ANALYZE` | 需求与上下文分析 | 读取 `readme.md` 与项目上下文 |
-| `PLAN_READY` | 计划就绪 | `plan.md` 已初始化且任务清单明确 |
+| `ANALYZE` | 需求与上下文分析 | 读取 `.workflow/readme.md`（含 `readme/` 章节）与项目上下文 |
+| `PLAN_READY` | 计划就绪 | `.workflow/plan.md` 与 `plan/` 章节已初始化且任务清单明确 |
 | `PREPARE` | 环境与分支准备 | 分支已创建、工作区干净 |
 | `IMPLEMENTING` | 实施中 | 逐逻辑单元编码 |
 | `VERIFYING` | 验证中 | 执行验证流水线 |
@@ -186,7 +238,7 @@ INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → R
 
 ### 5.2 状态转换规则
 
-- 状态转换 MUST 可追踪：每次进入新状态，MUST 在 `plan.md` 更新当前状态标记。
+- 状态转换 MUST 可追踪：每次进入新状态，MUST 更新 `.workflow/plan.md` 的当前状态标记，并在 `plan/agent-state.md` 追加转换记录。
 - 遇到需求模糊点，MUST 转入 `WAIT_USER`，MUST NOT 自行假设后继续。
 - 验证失败且无法修复，MUST 转入 `FAILED` 并输出失败报告。
 - 任何异常状态下 MUST NOT 执行 `git commit`。
@@ -207,7 +259,7 @@ INIT → ANALYZE → PLAN_READY → PREPARE → IMPLEMENTING → VERIFYING → R
 
 ### 6.2 Before Snapshot（修改前快照）
 
-每次修改开始前，Agent MUST 记录以下信息到 `plan.md`：
+每次修改开始前，Agent MUST 记录以下信息到 `.workflow/plan/before-snapshot.md`：
 
 ```
 commit hash:   <当前提交哈希>
@@ -220,7 +272,7 @@ risk level:    <L0 - L4>
 
 ### 6.3 Decision Log（决策日志）
 
-涉及以下事件时，MUST 在 `decision.md` 追加决策记录：
+涉及以下事件时，MUST 在 `.workflow/decision.md` 追加决策记录：
 
 - 技术方案选择。
 - 新依赖引入。
@@ -252,18 +304,18 @@ Rejected: <被否决的方案及原因>
 
 ### Phase 1：Requirement Analysis（需求分析） — `INIT → ANALYZE → PLAN_READY`
 
-1. 完整读取并解析 `readme.md`，提炼项目目标、技术栈、功能模块与约束条件。
-2. 若无法读取 `readme.md`，MUST 立即停止并明确要求用户重新提供，MUST NOT 臆造需求。
-3. 初始化 `plan.md`，记录初始任务列表与总体计划，状态标记为 `PLAN_READY`。
+1. 完整读取并解析需求来源：`.workflow/readme.md` 及其 `.workflow/readme/` 章节；若不存在则以项目根目录用户 `readme.md` 为准。提炼项目目标、技术栈、功能模块与约束条件。
+2. 若无法读取需求来源（`.workflow/readme.md` / 根目录 `readme.md`），MUST 立即停止并明确要求用户重新提供，MUST NOT 臆造需求。
+3. 初始化 `.workflow/plan.md`（入口）与 `.workflow/plan/` 标准章节（`index.md`、`task-list.md`、`agent-state.md`、`open-questions.md` 等），记录初始任务列表与总体计划，状态标记为 `PLAN_READY`。
 4. 提交：`docs: add initial plan based on readme analysis`
 
 ### Phase 2：Project Bootstrap（项目脚手架） — `PLAN_READY → PREPARE`
 
 1. 创建基础目录结构、入口文件、配置文件。
-2. 创建 `AGENTS.md`，写入项目开发规范与 AI 行为约束。
+2. 创建 `.workflow/AGENTS.md`，写入项目开发规范与 AI 行为约束。
 3. 创建 `.gitignore`，按技术栈忽略依赖、构建产物、环境变量等。
 4. 执行 `git init` 初始化仓库。
-5. 更新 `tree.md`，反映初始结构。
+5. 更新 `.workflow/tree.md`，反映初始结构。
 6. 执行初始提交：`chore: initial commit with project scaffold and gitignore`
 7. 建立首次知识索引：MUST 尝试 MCP → Python → Markdown，初始化 Vector Backend 并执行首次全量索引（见 8.3）。
 
@@ -276,16 +328,16 @@ Rejected: <被否决的方案及原因>
    - 按风险等级执行对应处理（见 6.1）。
    - 执行第 11 节「Validation」验证流水线。
    - 执行 Vector Backend 增量同步（见 8.3.6）。
-   - 更新 `plan.md`（进度、状态标记、已完成项、待办项、问题记录）。
-   - 更新 `tree.md`（记录新增或变更文件）。
+   - 更新 `.workflow/plan.md` 状态标记及 `plan/` 对应章节（进度、已完成项、待办项、问题记录）。
+   - 更新 `.workflow/tree.md`（记录新增或变更文件）。
    - 使用 Conventional Commits 提交。
-4. 遇到需求模糊点 MUST 转入 `WAIT_USER` 并记录到 `plan.md`，不得自行假设后继续。
+4. 遇到需求模糊点 MUST 转入 `WAIT_USER` 并记录到 `plan/open-questions.md`，不得自行假设后继续。
 
 ### Phase 4：Verification（验证与交付） — `IMPLEMENTING → VERIFYING → REVIEW → COMMITTING → DONE`
 
 1. 执行项目适用的完整验证流水线（见 11 节）。
 2. 执行全部测试。
-3. 同步 `plan.md` 与 `tree.md` 至最终状态，并核对 `readme.md`、`AGENTS.md` 一致性。
+3. 同步 `.workflow/plan.md` / `plan/` 章节与 `.workflow/tree.md` 至最终状态，并核对 `.workflow/readme.md`、`.workflow/AGENTS.md` 一致性。
 4. 最终提交：`chore: project completed and ready for review`
 5. 输出交付报告（见 12 节），状态置为 `DONE`。
 
@@ -505,7 +557,7 @@ AND
 Python Backend initialization failed
 ```
 
-Markdown fallback MUST 继续维护 `folder_summary` / `file_summary`，并在 `plan.md` 记录：
+Markdown fallback MUST 继续维护 `folder_summary` / `file_summary`，并在 `.workflow/plan/vector-backend-status.md` 记录：
 
 ```
 Vector Backend:
@@ -537,7 +589,7 @@ Agent SHOULD：
 - 优先使用项目级 `.venv`。
 - 使用 `python -m pip`。
 - 采用最小依赖原则。
-- 将安装结果写入 `plan.md` 或 `decision.md`。
+- 将安装结果写入 `.workflow/plan/vector-backend-status.md` 或 `.workflow/decision.md`。
 
 #### 8.3.10 已有知识库保护
 
@@ -552,7 +604,7 @@ MUST NOT 直接删除、重新初始化覆盖或强制重建，除非：索引�
 
 #### 8.3.11 配置结果记录（Backend Status）
 
-初始化完成后，在 `plan.md` 记录：
+初始化完成后，在 `.workflow/plan/vector-backend-status.md` 记录：
 
 ```
 ## Vector Backend Status
@@ -656,7 +708,7 @@ Code Graph 构建 MUST 按以下层级降级，确保不同语言可用：
 
 - Agent SHOULD 优先选择当前环境中可用的最高精度解析能力。推荐优先级：AST Parser（AST / Compiler API）→ LSP（Language Server Protocol / Symbol Index）→ Static Analysis → Manual Summary。
 - 若已确认某一级不可用，可直接跳过，无需重复探测。
-- 最终使用的 Level MUST 记录在 `plan.md` 或 `decision.md`。
+- 最终使用的 Level MUST 记录在 `.workflow/plan/vector-backend-status.md`（或对应章节）或 `.workflow/decision.md`。
 - L3 风险等级的影响查询 MUST 基于 Code Graph（见 6.1）。
 
 ### 9.3 影响分析原语（Impact Primitives）
@@ -683,7 +735,7 @@ Agent MUST 使用三级定位协议，MUST NOT 退化为全文搜索：
 
 | 层级 | 内容 | 用途 |
 | --- | --- | --- |
-| `L1` | `tree.md` + `folder_summary` | 定位目标目录 |
+| `L1` | `.workflow/tree.md` + `folder_summary` | 定位目标目录 |
 | `L2` | `file_summary` | 定位目标文件 |
 | `L3` | 源文件源码 | 精确定位代码 |
 
@@ -738,8 +790,8 @@ Agent MUST 按以下顺序执行适用的验证：
 - [ ] **构建通过（如适用）**：执行项目适用的构建命令并成功；若项目无构建流程，则跳过并记录原因。
 - [ ] **语法检查通过**：无语法错误。
 - [ ] **类型检查通过**（如项目含类型系统）：无类型错误。
-- [ ] **`tree.md` 已同步**：与实际目录结构一致。
-- [ ] **`plan.md` 已同步**：进度、已完成项、待办项为最新。
+- [ ] **`.workflow/tree.md` 已同步**：与实际目录结构一致。
+- [ ] **`.workflow/plan.md` 与 `plan/` 章节已同步**：进度、已完成项、待办项、状态标记为最新。
 - [ ] **无明显未使用代码**：无遗留调试代码、死代码。
 - [ ] **无敏感信息**：无硬编码密钥、密码、Token 或个人信息。
 
@@ -751,7 +803,7 @@ Agent MUST 按以下顺序执行适用的验证：
 
 - 项目完整可构建、可运行。
 - Git 提交历史清晰、可独立回溯。
-- `plan.md`、`tree.md`、`AGENTS.md`、`decision.md` 与 `readme.md` 内容一致。
+- `.workflow/plan.md` / `plan/` 章节、`.workflow/tree.md`、`.workflow/AGENTS.md`、`.workflow/decision.md` 与 `.workflow/readme.md` 内容一致。
 - 无敏感信息残留。
 
 每次开发任务结束时，Agent MUST 输出以下结构的报告：
