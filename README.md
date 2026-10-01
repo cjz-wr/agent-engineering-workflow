@@ -14,6 +14,10 @@ Requirement → Plan → Code Navigation → Impact Analysis → Implementation 
 
 This is not a plain collection of prompts, but a set of installable Coding Agent Workflow Skills.
 
+> **Why this project?** See the [comparison report and value analysis](./docs/why-agent-engineering-workflow.md) —
+> how it compares with plain prompt collections, client rule files, and agent frameworks.
+> Full documentation index: [`docs/`](./docs/README.md).
+
 ## Why
 
 Common problems with traditional Coding Agents:

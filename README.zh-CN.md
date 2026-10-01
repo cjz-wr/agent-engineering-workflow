@@ -14,6 +14,10 @@
 
 这不是一个普通 Prompt 集合，而是一套可安装的 Coding Agent Workflow Skills。
 
+> **为什么选择它？** 见[价值说明与对比分析](./docs/why-agent-engineering-workflow.md) ——
+> 与普通 Prompt 集合、客户端规则文件、Agent 编排框架的差异对比。
+> 完整文档索引：[`docs/`](./docs/README.md)。
+
 ## 为什么使用
 
 传统 Coding Agent 常见问题：
