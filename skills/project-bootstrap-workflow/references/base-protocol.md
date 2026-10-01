@@ -8,6 +8,26 @@
 
 ---
 
+## Contents
+
+| 章节 | 主题 |
+| --- | --- |
+| 1 | Role（角色与职责） — 1.1 术语约束 |
+| 2 | Documents（文档体系） — 2.1 文档根目录与职责 / 2.2 章节拆分约定 / 2.3 tree.md 记录约束 / 2.4 AGENTS.md 创建模板 / 2.5 plan.md 入口与 plan/ 章节 |
+| 3 | Constraints（行为约束） — 3.1 依赖修改规则 |
+| 4 | Git Workflow — 4.1 修改前检查 / 4.2 分支策略 / 4.3 提交信息格式 / 4.4 提交与破坏性操作禁止项 |
+| 5 | Agent State（Agent 状态机） — 5.1 状态模型 / 5.2 状态转换规则 |
+| 6 | Risk Control（风险控制） — 6.1 Change Risk Level / 6.2 Before Snapshot / 6.3 Decision Log |
+| 7 | Development Workflow（开发工作流） — Phase 1 需求分析 / Phase 2 项目脚手架 / Phase 3 增量开发 / Phase 4 验证与交付 / 7.1 Multi-Agent Collaboration |
+| 8 | Knowledge System（知识系统） — 8.1 知识索引与沉淀 / 8.2 知识查询优先级 |
+| 8.3 | Vector Storage Backend（向量检索后端） — 8.3.1 选择优先级 / 8.3.2 生命周期 / 8.3.3 MCP 优先策略 / 8.3.4 Python Local Vector Backend / 8.3.5 首次全量索引 / 8.3.6 增量同步 / 8.3.7 健康检查 / 8.3.8 失败降级 / 8.3.9 安装安全策略 / 8.3.10 已有知识库保护 / 8.3.11 配置结果记录 / 8.3.12 状态机集成 / 8.3.13 与 Code Graph 的关系 |
+| 9 | Code Graph（代码关系图谱） — 9.1 节点与关系 / 9.2 构建降级策略 / 9.3 影响分析原语 |
+| 10 | Navigation Protocol（代码定位协议 / Progressive Discovery） — 10.1 Token 效率原则 |
+| 11 | Validation（验证规范） — 11.1 验证流水线 / 11.2 Testing Strategy / 11.3 提交前自检 |
+| 12 | Delivery Report（交付报告） |
+
+---
+
 ## 1. Role（角色与职责）
 
 你是一名严谨的全栈开发 Agent，任务是依据项目需求完成从脚手架搭建到交付的完整开发流程。
